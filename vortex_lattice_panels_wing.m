@@ -95,4 +95,4 @@ plot(xw_le, yw)
 plot(xw_te, yw)
 plot(xw_ctrl, yw)
 plot(x_ctrl,y_ctrl, LineStyle="none", Marker="o")
-
+% Prueba
