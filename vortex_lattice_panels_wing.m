@@ -16,7 +16,6 @@ tors = deg2rad(-4);
 
 
 %% Flight deffinition variables
-
 u_inf = 1;
 AoA = deg2rad(5);
 
@@ -103,6 +102,7 @@ c_aero_mean = 2/3 * cr * (1+taper+taper^2)/(1+taper);
 %Aerodynamic center coordinates
 y_aero_ctr = semispan * (1+2*taper)/(3*(1+taper));
 x_aero_ctr = 0.25*cr + tan(sweep) * y_aero_ctr;
+%CUIDADO NO CUADRA CON LA VALIDACIÓN
 
 
 %% Velocity solving for the whole wing
@@ -136,6 +136,7 @@ x_aero_ctr = 0.25*cr + tan(sweep) * y_aero_ctr;
 % end
 
 v_ind_mat = zeros(Ns, Ns);
+w_i_ctrl = zeros(1,Ns);
 
 
 for u=1:Ns
@@ -159,7 +160,6 @@ for u=1:Ns
 
         v_ind_mat(j,u) = v_ind_mat(j,u) + k/((4*pi)*(a*d-c*b)) + l/(4*pi);
 
-
         %calculations for left semiplane-induced speed
 
         a = x_ctrl(j) - xw_4(u+1);
@@ -174,7 +174,6 @@ for u=1:Ns
 
         k = (g*a + h*b)/e - (g*c + h*d)/f;
         l = -1/b * (1 + a/e) + 1/d * (1 + c/f);
-        
         
         v_ind_mat(j,u) = v_ind_mat(j,u) + k/((4*pi)*(a*d-c*b)) + l/(4*pi);
     end
@@ -212,8 +211,49 @@ end
 
 c_L = 2*c_L/sup;
 
+%% Arodynamic characteristics
+cmoy = zeros(Ns, 1);
 
+for j = 1:Ns
+    cmoy(j) = -cl_panel(j) * (x_ctrl(j)-chord_ctrl(j)/2)/chord_ctrl(j);
+end
 
+CMoy =0;
+for j=1:Ns
+    CMoy = CMoy + cmoy(j)*((chord(j)+chord(j+1))/2)*(yw(j+1)-yw(j))*chord_ctrl(j);
+end 
+
+CMoy = (2/(sup*c_aero_mean)) * CMoy;
+
+CMca = CMoy + c_L*x_aero_ctr/c_aero_mean;
+%REVISAR, VALIDACION NO CUADRA
+%% RESISTENCIA INDUCIDA DE TREFT
+w_drag_d = zeros(Ns,Ns);
+w_drag_i = zeros(Ns,Ns);
+
+for u=1:Ns
+    for j=1:Ns
+        w_drag_d(u,j)= 1/(2*pi*(y_ctrl(j)-yw(u+1)));
+        w_drag_i(u,j)= -1/(2*pi*(y_ctrl(j)+yw(u+1)));
+    end 
+end
+w_drag = w_drag_i + w_drag_d;
+
+gamma_neta = zeros(Ns,1);
+for j=1:Ns-1
+    gamma_neta(j) = gamma(j)-gamma(j+1);
+end 
+gamma_neta(Ns) = gamma(Ns);
+
+w_inf = gamma_neta'*w_drag;
+alpha_inf = w_inf/u_inf;
+
+CdiT = -cl_panel.*alpha_inf/2;
+
+CDi =0;
+for j=1:Ns
+CDi = CDi + 2/sup * CdiT(j)*(yw(j+1)-yw(j))*chord_ctrl(j);
+end
 %% Plot temporal para probar cosas
 
 figure
@@ -224,4 +264,3 @@ plot(xw_te, yw)
 plot(xw_ctrl, yw)
 plot(x_ctrl,y_ctrl, LineStyle="none", Marker="o")
 
-% Prueba 2
