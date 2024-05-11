@@ -20,8 +20,8 @@ torsion = deg2rad(-2);
 
 %% Flight deffinition variables
 u_inf = 1;
-n_alpha = 21;
-alpha = deg2rad(linspace(-10, 10, n_alpha));
+n_alpha = 5;
+alpha = deg2rad(linspace(-8, 8, n_alpha));
 
 %% Geometry deffinition variables
 
@@ -60,6 +60,31 @@ alpha_1 = (1-poly_cL(2))/poly_cL(1);
 
 [~,~,~,~,~,clb] = wing_solve(x_c, y_c, xw_4th, ywing, chord, tors_c, chord_c, ...
         surface, alpha_1, u_inf, c_aero_m, x_ctr);
+
+cla = cla - clb;
+
+
+%% Plots for the report
+
+colors = [[0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250];...
+     [0.4940 0.1840 0.5560]; [0.4660 0.6740 0.1880]; [0.3010 0.7450 0.9330]];
+
+figure
+hold on
+for i=1:n_alpha
+    alpha_here = num2str(rad2deg(alpha(i)));
+    display = strcat('\alpha = ', alpha_here, 'º');
+    plot(y_c, cl(i,:), Color=colors(i,:), DisplayName=display)
+    plot(-y_c, cl(i,:), Color=colors(i,:), HandleVisibility='off')
+end
+ylabel('c_l(y)')
+legend('show', 'Location', 'northwest')
+hold off
+
+clear alpha_here
+clear display
+
+
 
 
 figure
@@ -178,11 +203,19 @@ function [xw_4, yw, x_aero_ctr, y_aero_ctr, tors_ctrl, chord_ctrl, ...
     plot(xw_te, yw, Color='black')
     plot(xw_ctrl, yw, Color='[0.85 0.85 0.85]')
     plot(x_ctrl,y_ctrl, LineStyle="none", Marker="o")
+    %all the plot commands with a - before the y coordinate are there to
+    %plot the port wing
+    plot(xw_4, -yw, Color='[0.85 0.85 0.85]')
+    plot(xw_le, -yw, Color='black')
+    plot(xw_te, -yw, Color='black')
+    plot(xw_ctrl, -yw, Color='[0.85 0.85 0.85]')
+    plot(x_ctrl, -y_ctrl, LineStyle="none", Marker="o")
     for i=1:size(ribs, 1)
         plot(ribs(i, :), y_ribs(i,:), Color='black')
+        plot(ribs(i, :), -y_ribs(i,:), Color='black')
     end
     xlim([0 5])
-    ylim([0 5])
+    ylim([-5 5])
 
 end
 
