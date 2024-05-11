@@ -16,7 +16,6 @@ tors = deg2rad(-4);
 
 
 %% Flight deffinition variables
-
 u_inf = 1;
 AoA = deg2rad(5);
 
@@ -212,7 +211,19 @@ end
 
 c_L = 2*c_L/sup;
 
+%% Arodynamics characteristics
+cmoy = zeros(Ns, 1);
 
+for j = 1:Ns
+    cmoy(j) = -cl_panel(j) * x_ctrl(j) / chord_ctrl(j);
+end
+
+CMoy =0;
+for j=1:Ns
+    CMoy = CMoy + cmoy(j)*((chord(j)+chord(j+1))/2)*(yw(j+1)-yw(j))*chord_ctrl(j);
+end 
+
+CMoy = (2/(sup*c_aero_mean)) * CMoy;
 
 %% Plot temporal para probar cosas
 
@@ -224,4 +235,3 @@ plot(xw_te, yw)
 plot(xw_ctrl, yw)
 plot(x_ctrl,y_ctrl, LineStyle="none", Marker="o")
 
-% Prueba 2
