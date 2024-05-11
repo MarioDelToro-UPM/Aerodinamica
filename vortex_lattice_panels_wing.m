@@ -26,7 +26,7 @@ alpha = deg2rad(linspace(-8, 8, n_alpha));
 %% Geometry deffinition variables
 
 N_chord = 1; %Number of chordwise panels (placeholder, more than 1 WILL break this code)
-N_span = 10; %Number of spanwise panels for each semiplane
+N_span = 50; %Number of spanwise panels for each semiplane
 Distrib = 3; %0 for equidist, 1 for more panels toward the root, 2 for more panels toward the wingtips
 
 
@@ -37,6 +37,7 @@ Distrib = 3; %0 for equidist, 1 for more panels toward the root, 2 for more pane
 gamma_real = zeros(n_alpha, N_span);
 cL = zeros(n_alpha, 1);
 cD = zeros(n_alpha, 1);
+cd = zeros(n_alpha, N_span);
 cMoy = zeros(n_alpha, 1);
 cMca = zeros(n_alpha, 1);
 w_ctrl = zeros(n_alpha, N_span);
@@ -47,7 +48,7 @@ for i = 1:n_alpha
         wing_solve(x_c, y_c, xw_4th, ywing, chord, tors_c, chord_c, ...
         surface, alpha(i), u_inf, c_aero_m, x_ctr);
 
-    cD(i) = induced_drag(surface, y_c, ywing, gamma_real(i), u_inf, cl(i), chord_c);
+    [cD(i), cd(i,:)] = induced_drag(surface, y_c, ywing, gamma_real(i), u_inf, cl(i), chord_c);
 end
 
 poly_cL = polyfit(alpha, cL, 1);
@@ -66,6 +67,9 @@ cla = cla - clb;
 
 %% Plots for the report
 
+
+%plots the c_l for each control point through the wingspan
+
 colors = [[0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250];...
      [0.4940 0.1840 0.5560]; [0.4660 0.6740 0.1880]; [0.3010 0.7450 0.9330]];
 
@@ -79,6 +83,7 @@ for i=1:n_alpha
 end
 ylabel('c_l(y)')
 legend('show', 'Location', 'northwest')
+title('Distribución de c_l sobre el ala')
 hold off
 
 clear alpha_here
@@ -356,7 +361,7 @@ function [gamma_real, c_L, CMoy, CMca, w_i_ctrl, cl_panel]...
     %REVISAR, VALIDACION NO CUADRA
 end
 
-function CDi = induced_drag(sup, y_ctrl, yw, gamma, u_inf, cl_panel, chord_ctrl)
+function [CDi, CdiT] = induced_drag(sup, y_ctrl, yw, gamma, u_inf, cl_panel, chord_ctrl)
 
     Ns = size(gamma, 1);
 
