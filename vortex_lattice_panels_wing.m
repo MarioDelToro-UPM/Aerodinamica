@@ -55,6 +55,12 @@ poly_cL = polyfit(alpha, cL, 1);
 alpha_0 = -poly_cL(2)/poly_cL(1);
 alpha_1 = (1-poly_cL(2))/poly_cL(1);
 
+[~,~,~,~,~,cla] = wing_solve(x_c, y_c, xw_4th, ywing, chord, tors_c, chord_c, ...
+        surface, alpha_0, u_inf, c_aero_m, x_ctr);
+
+[~,~,~,~,~,clb] = wing_solve(x_c, y_c, xw_4th, ywing, chord, tors_c, chord_c, ...
+        surface, alpha_1, u_inf, c_aero_m, x_ctr);
+
 
 figure
 hold on
