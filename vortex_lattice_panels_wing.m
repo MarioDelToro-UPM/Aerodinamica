@@ -48,7 +48,7 @@ for i = 1:n_alpha
         wing_solve(x_c, y_c, xw_4th, ywing, chord, tors_c, chord_c, ...
         surface, alpha(i), u_inf, c_aero_m, x_ctr);
 
-    [cD(i), cd(i,:)] = induced_drag(surface, y_c, ywing, gamma_real(i), u_inf, cl(i), chord_c);
+    [cD(i), cd(i,:)] = induced_drag(surface, y_c, ywing, gamma_real(i,:), u_inf, cl(i,:), chord_c);
 end
 
 poly_cL = polyfit(alpha, cL, 1);
@@ -73,6 +73,7 @@ cla = cla - clb;
 colors = [[0.8500 0.3250 0.0980]; [0.9290 0.6940 0.1250];...
      [0.4940 0.1840 0.5560]; [0.4660 0.6740 0.1880]; [0.3010 0.7450 0.9330]];
 
+% PLOT cl (Q3)
 figure
 hold on
 for i=1:n_alpha
@@ -82,15 +83,103 @@ for i=1:n_alpha
     plot(-y_c, cl(i,:), Color=colors(i,:), HandleVisibility='off')
 end
 ylabel('c_l(y)')
+xlabel('Envergadura')
 legend('show', 'Location', 'northwest')
-title('Distribución de c_l sobre el ala')
+title('Distribución de C_l sobre el ala')
+grid on
 hold off
 
 clear alpha_here
 clear display
 
 
+% PLOT CL (Q4)
+figure
+hold on
+alpha_here = num2str(rad2deg(alpha(i)));
+display = strcat('\alpha = ', alpha_here, 'º');
+plot(rad2deg(alpha), cL, Color=colors(1,:), DisplayName=display)
 
+
+ylabel('C_L')
+xlabel('\alphaº')
+% legend('show', 'Location', 'northwest')
+title('C_L para  diferentes angulos de ataque')
+grid on
+hold off
+
+clear alpha_here
+clear display
+
+% PLOT cla and clb (Q5)
+figure
+hold on
+
+    alpha_here = num2str(rad2deg(alpha(i)));
+    display = strcat('\alpha = ', alpha_here, 'º');
+    plot(y_c, cla, Color=colors(1,:), DisplayName=display)
+    plot(-y_c, cla, Color=colors(1,:), HandleVisibility='off')
+    plot(y_c, clb, Color=colors(4,:), DisplayName=display)
+    plot(-y_c, clb, Color=colors(4,:), HandleVisibility='off')
+xlabel('Envergadura')
+legend('C_{la}','C_{lb}', 'Location', 'northwest')
+title('C_{la} y C_{lb} en función del angulo de ataque')
+grid on
+hold off
+
+clear alpha_here
+clear display
+
+% PLOT cd and CD (Q6)
+figure
+hold on
+for i=1:n_alpha
+    alpha_here = num2str(rad2deg(alpha(i)));
+    display = strcat('\alpha = ', alpha_here, 'º');
+    plot(y_c, cd(i,:), Color=colors(i,:), DisplayName=display)
+    plot(-y_c, cd(i,:), Color=colors(i,:), HandleVisibility='off')
+end
+ylabel('c_d(y)')
+xlabel('Envergadura')
+legend('show', 'Location', 'northwest')
+title('Distribución de C_{di} sobre el ala')
+grid on
+hold off
+
+clear alpha_here
+clear display
+
+figure
+hold on
+    alpha_here = num2str(rad2deg(alpha(i)));
+    display = strcat('\alpha = ', alpha_here, 'º');
+    plot(rad2deg(alpha), cD, Color=colors(1,:), DisplayName=display)
+ylabel('c_{Di}')
+xlabel('\alphaº')
+% legend('show', 'Location', 'northwest')
+title('Distribución de C_{Di} en función del ángulo de ataque')
+grid on
+hold off
+
+clear alpha_here
+clear display
+
+% PLOT Cmoy Cm ca (Q7)
+figure
+hold on
+alpha_here = num2str(rad2deg(alpha(i)));
+display = strcat('\alpha = ', alpha_here, 'º');
+plot(rad2deg(alpha), cMca, Color=colors(1,:), DisplayName=display)
+plot(rad2deg(alpha), cMoy, Color=colors(4,:), DisplayName=display)
+
+xlabel('\alphaº')
+legend('C_{M OY}','C_{M CA}', 'Location', 'southwest')
+title('C_{M OY} y C_{M CA} en función del angulo de ataque')
+grid on
+hold off
+
+clear alpha_here
+clear display
 
 figure
 hold on
@@ -104,7 +193,7 @@ ylabel('C_l, C_{m, ba}, C_{m, ca}')
 legend('show', 'Location', 'northwest')
 hold off
 
-
+%% 
 % figure
 % plot(cL, cD)
 
@@ -363,7 +452,7 @@ end
 
 function [CDi, CdiT] = induced_drag(sup, y_ctrl, yw, gamma, u_inf, cl_panel, chord_ctrl)
 
-    Ns = size(gamma, 1);
+    Ns = size(gamma, 2);
 
     % RESISTENCIA INDUCIDA DE TREFT
     w_drag_d = zeros(Ns,Ns);
@@ -393,4 +482,13 @@ function [CDi, CdiT] = induced_drag(sup, y_ctrl, yw, gamma, u_inf, cl_panel, cho
     CDi = CDi + 2/sup * CdiT(j)*(yw(j+1)-yw(j))*chord_ctrl(j);
     end
 
+
 end
+
+
+
+
+
+
+
+
